@@ -8,13 +8,9 @@
     <script src="https://unpkg.com/infinite-slide-carousel@1.0.1/dist/lib/gsap-slide-carousel.umd.js"></script>
     <title>Basic Infinite Slide Carousel</title>
     <style>
-        /* 슬라이드 크기와 스타일 커스터마이징 */
-        .gsap-carousel-container {
-            height: 200px;
-        }
         .gsap-carousel-slide {
             width: 200px;
-            height: 200px;
+            height: 400px;
             border-radius: 10px;
             font-size: 24px;
             font-weight: bold;
@@ -45,9 +41,9 @@
             slideSpace: 5,  // 갭 크기
             pauseOnHover: true,
             enableDrag: true,
-            onReady: () => {
+            onReady: function() {
                 console.log('✅ Carousel ready!');
-                console.log('Stride:', carousel.stride);
+                console.log('Stride:', this.stride);
             }
         });
         
