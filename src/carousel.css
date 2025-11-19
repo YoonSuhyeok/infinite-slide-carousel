@@ -1,0 +1,73 @@
+/**
+ * GSAP Slide Carousel Styles
+ * Version: 1.0.0
+ */
+
+/* ===== Base Styles ===== */
+.gsap-carousel-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: pan-y;
+  cursor: grab;
+}
+
+.gsap-carousel-container:active {
+  cursor: grabbing;
+}
+
+.gsap-carousel-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  will-change: transform;
+}
+
+/* ===== Optional: Fade Edges Effect ===== */
+.gsap-carousel-container.fade-edges {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 10%,
+    black 90%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 10%,
+    black 90%,
+    transparent
+  );
+}
+
+/* ===== CSS Custom Properties for Customization ===== */
+.gsap-carousel-container {
+  --carousel-slide-gap: 16px;
+}
+
+.gsap-carousel-slide {
+  margin-right: var(--carousel-slide-gap);
+}
+
+.gsap-carousel-slide:last-child {
+  margin-right: 0;
+}
+
+/* ===== Accessibility ===== */
+.gsap-carousel-slide:focus-visible {
+  outline: 2px solid #4a90e2;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ===== Reduced Motion Support ===== */
+@media (prefers-reduced-motion: reduce) {
+  .gsap-carousel-inner {
+    will-change: auto;
+  }
+}

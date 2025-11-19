@@ -1,0 +1,55 @@
+{
+  "name": "infinite-slide-carousel",
+  "description": "Infinite slider based on the GSAP library",
+  "version": "1.0.0",
+  "private": false,
+  "type": "module",
+  "main": "./dist/lib/gsap-slide-carousel.umd.js",
+  "module": "./dist/lib/gsap-slide-carousel.es.js",
+  "types": "./dist/lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/lib/index.d.ts",
+      "import": "./dist/lib/gsap-slide-carousel.es.js",
+      "require": "./dist/lib/gsap-slide-carousel.umd.js"
+    },
+    "./styles": "./dist/lib/carousel.css"
+  },
+  "files": [
+    "dist/lib",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YoonSuhyeok/gsap-slide.git"
+  },
+  "bugs": {
+    "url": "https://github.com/YoonSuhyeok/gsap-slide/issues"
+  },
+  "homepage": "https://github.com/YoonSuhyeok/gsap-slide#readme",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build --config vite.lib.config.ts && tsc --project tsconfig.lib.json",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": [
+    "gsap",
+    "slider",
+    "carousel",
+    "infinite",
+    "animation",
+    "typescript"
+  ],
+  "author": "YoonSuhyeok",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "gsap": "^3.13.0",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5"
+  },
+  "peerDependencies": {
+    "gsap": "^3.12.0"
+  }
+}
