@@ -177,6 +177,8 @@ class GsapSlideCarousel implements IGsapSlideCarousel {
     }
     
     this.totalDistance = this.stride * this.totalSlides;
+    const maxHeight = Math.max(...this.slides.map(slide => slide.offsetHeight));
+    this.slidesContainer.style.height = `${maxHeight}px`;
   }
 
   // origin.ts 패턴: gsap.set으로 각 슬라이드의 초기 x 위치 설정
