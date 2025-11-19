@@ -13,7 +13,7 @@
       "import": "./dist/lib/gsap-slide-carousel.es.js",
       "require": "./dist/lib/gsap-slide-carousel.umd.js"
     },
-    "./styles": "./dist/lib/carousel.css"
+    "./styles": "./dist/lib/infinite-slide-carousel.css"
   },
   "files": [
     "dist/lib",
@@ -31,7 +31,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build --config vite.lib.config.ts && tsc --project tsconfig.lib.json",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "prepublishOnly": "pnpm build"
   },
   "keywords": [
     "gsap",

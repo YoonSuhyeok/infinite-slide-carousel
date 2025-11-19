@@ -1,0 +1,19 @@
+# Source files
+src/
+demos/
+*.ts
+!*.d.ts
+
+# Config files
+tsconfig.json
+tsconfig.lib.json
+vite.lib.config.ts
+.gitignore
+
+# Development
+node_modules/
+.vscode/
+.idea/
+
+# Demos and tests
+demos/
