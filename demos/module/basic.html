@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="../../dist/lib/infinite-slide-carousel.css" rel="stylesheet">
+    <link href="https://unpkg.com/infinite-slide-carousel@1.0.1/dist/lib/infinite-slide-carousel.css" rel="stylesheet">
     
     <!-- Import Map으로 bare import 해결 -->
     <script type="importmap">
@@ -52,7 +52,7 @@
     </div>
     
     <script type="module">
-        import GsapSlideCarousel from '../../dist/lib/gsap-slide-carousel.es.js';
+        import GsapSlideCarousel from 'https://cdn.jsdelivr.net/npm/infinite-slide-carousel@latest/dist/lib/gsap-slide-carousel.es.js';
         
         const carousel = GsapSlideCarousel.create({
             container: '.gsap-carousel-container',
