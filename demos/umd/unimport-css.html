@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unimport CSS</title>
+    <script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
+    <script src="https://unpkg.com/infinite-slide-carousel@1.0.1/dist/lib/gsap-slide-carousel.umd.js"></script>
+    <style>
+        .container {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            height: 200px;
+            cursor: grab;
+        }
+        .container:active {
+            cursor: grabbing;
+        }
+
+        .slide {
+            position: absolute;      /* 필수 */
+            top: 0;                  /* 필수 */
+            left: 0;                 /* 필수 */
+            width: 100px;            /* 필수 - 고정 너비 지정 */
+            height: 200px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            will-change: transform;  /* 성능 최적화 */
+            user-select: none;       /* 드래그 시 텍스트 선택 방지 */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="slide">1</div>
+        <div class="slide">2</div>
+        <div class="slide">3</div>
+    </div>
+    <script>
+        const carousel = GsapSlideCarousel.default.create({
+            container: '.container',
+            classNames: {
+                container: 'container',  /* 커스텀 클래스명 */
+                slide: 'slide'          /* 커스텀 클래스명 */
+            },
+            slideSpace: 20,
+            autoSlideSpeed: 80
+        });
+    </script>
+</body>
+</html>
