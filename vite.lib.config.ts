@@ -18,8 +18,9 @@ export default defineConfig({
     rollupOptions: {
       external: ['gsap'],
       output: {
+        exports: 'named',
         globals: {
-          gsap: 'gsap'
+          'gsap': 'gsap'
         },
         assetFileNames: (assetInfo) => {
           if (assetInfo.name === 'style.css') {
