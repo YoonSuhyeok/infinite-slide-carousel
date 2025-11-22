@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://unpkg.com/infinite-slide-carousel@1.0.1/dist/lib/infinite-slide-carousel.css" rel="stylesheet">
+    <link href="../../dist/lib/infinite-slide-carousel.css" rel="stylesheet">
     <script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
-    <script src="https://unpkg.com/infinite-slide-carousel@1.0.1/dist/lib/gsap-slide-carousel.umd.js"></script>
+    <script src="../../dist/lib/gsap-slide-carousel.umd.js"></script>
     <title>Basic Infinite Slide Carousel</title>
     <style>
         .gsap-carousel-slide {
@@ -37,7 +37,7 @@
             container: '.gsap-carousel-container',
             multiple: false,
             direction: 'left',
-            autoSlideSpeed: 50,
+            transitionDuration: 2000,
             slideSpace: 5,  // 갭 크기
             pauseOnHover: true,
             enableDrag: true,
