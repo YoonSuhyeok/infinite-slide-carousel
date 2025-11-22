@@ -31,7 +31,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build --config vite.lib.config.ts && tsc --project tsconfig.lib.json",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "perf:test": "node scripts/performance-test.mjs",
+    "perf:compare": "node scripts/performance-compare.mjs",
+    "perf:report": "node scripts/performance-report.mjs"
   },
   "keywords": [
     "gsap",
@@ -44,6 +47,7 @@
   "author": "YoonSuhyeok",
   "license": "MIT",
   "devDependencies": {
+    "@playwright/test": "^1.56.1",
     "@types/node": "^24.10.1",
     "gsap": "^3.13.0",
     "typescript": "~5.8.3",
