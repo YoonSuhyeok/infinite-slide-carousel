@@ -32,9 +32,9 @@
     "dev": "vite",
     "build": "vite build --config vite.lib.config.ts && tsc --project tsconfig.lib.json",
     "lint": "tsc --noEmit",
-    "perf:test": "node scripts/performance-test.mjs",
-    "perf:compare": "node scripts/performance-compare.mjs",
-    "perf:report": "node scripts/performance-report.mjs"
+    "perf:test": "node performance/scripts/performance-test.mjs",
+    "perf:compare": "node performance/scripts/performance-compare.mjs",
+    "perf:report": "node performance/scripts/performance-report.mjs"
   },
   "keywords": [
     "gsap",
