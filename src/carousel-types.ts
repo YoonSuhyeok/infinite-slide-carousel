@@ -53,8 +53,8 @@ export interface CarouselOptions {
   /** 슬라이드 방향 (기본값: 'left') */
   direction?: 'left' | 'right';
   
-  /** 자동 슬라이드 속도 (픽셀/초, 기본값: 30) */
-  autoSlideSpeed?: number;
+  /** 한 슬라이드 전환 시간 (밀리초, 기본값: 3000) */
+  transitionDuration?: number;
   
   /** 슬라이드 간 간격 (픽셀, 기본값: 16) */
   slideSpace?: number;
@@ -99,9 +99,9 @@ export interface IGsapSlideCarousel {
   
   /**
    * 애니메이션 속도 변경
-   * @param speed - 새로운 속도 (픽셀/초)
+   * @param duration - 한 슬라이드 전환 시간 (밀리초)
    */
-  setSpeed(speed: number): void;
+  setSpeed(duration: number): void;
   
   /**
    * 특정 슬라이드로 이동

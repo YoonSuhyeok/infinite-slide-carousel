@@ -18,7 +18,7 @@ import type {
  * // 방법 1: containerSelector로 자동 초기화 (여러 개 있으면 모두 초기화)
  * const result = GsapSlideCarousel.create({
  *   containerSelector: '.gsap-carousel-container',
- *   autoSlideSpeed: 100,
+ *   transitionDuration: 3000,
  *   direction: 'left' // 'left' 또는 'right'
  * });
  * // result는 단일 인스턴스 또는 배열
@@ -27,18 +27,18 @@ import type {
  * const carousel = GsapSlideCarousel.create({
  *   containerSelector: '.gsap-carousel-container',
  *   multiple: false,
- *   autoSlideSpeed: 100
+ *   transitionDuration: 3000
  * });
  * 
  * // 방법 3: Element 직접 전달
  * const carousel2 = GsapSlideCarousel.create({
  *   container: document.getElementById('my-carousel'),
- *   autoSlideSpeed: 100
+ *   transitionDuration: 3000
  * });
  * 
  * // 방법 4: 모든 캐러셀 명시적 초기화
  * const carousels = GsapSlideCarousel.initAll('.gsap-carousel-container', {
- *   autoSlideSpeed: 100,
+ *   transitionDuration: 3000,
  *   pauseOnHover: true
  * });
  * ```
@@ -50,7 +50,7 @@ class GsapSlideCarousel implements IGsapSlideCarousel {
   
   // 설정
   private direction: 'left' | 'right';
-  private autoSlideSpeed: number;
+  private transitionDuration: number;
   private slideSpace: number;
   private enableDrag: boolean;
   private pauseOnHover: boolean;
@@ -99,16 +99,14 @@ class GsapSlideCarousel implements IGsapSlideCarousel {
     
     // 옵션 설정
     this.direction = options.direction ?? 'left';
-    this.autoSlideSpeed = options.autoSlideSpeed ?? 30;
+    this.transitionDuration = options.transitionDuration ?? 3000;
     this.slideSpace = options.slideSpace ?? 16;
     this.enableDrag = options.enableDrag ?? true;
     this.pauseOnHover = options.pauseOnHover ?? true;
     this.pauseOnHidden = options.pauseOnHidden ?? true;
     
-    // 커스텀 클래스명 병합
-    if (options.classNames) {
-      this.classNames = { ...this.classNames, ...options.classNames };
-    }
+    // 클래스명 설정
+    this.detectAndSetClassNames(options.classNames);
     
     // 콜백 설정
     this.onExpose = options.onExpose;
@@ -120,6 +118,80 @@ class GsapSlideCarousel implements IGsapSlideCarousel {
   }
 
   // ===== Private Methods =====
+
+  /**
+   * 컨테이너와 슬라이드의 클래스명을 감지하고 설정
+   */
+  private detectAndSetClassNames(customClassNames?: { container?: string; slide?: string }) {
+    // 1. 커스텀 클래스명이 제공된 경우
+    if (customClassNames) {
+      if (customClassNames.container) {
+        // 컨테이너 클래스가 실제로 존재하는지 확인
+        if (this.slidesContainer.classList.contains(customClassNames.container)) {
+          this.classNames.container = customClassNames.container;
+        } else {
+          console.warn(
+            `GsapSlideCarousel: Specified container class "${customClassNames.container}" not found on container element. Using detected class instead.`
+          );
+        }
+      }
+      
+      if (customClassNames.slide) {
+        this.classNames.slide = customClassNames.slide;
+      }
+    }
+    
+    // 2. 컨테이너 클래스명 자동 감지 (커스텀이 없거나 일치하지 않는 경우)
+    if (!customClassNames?.container || !this.slidesContainer.classList.contains(customClassNames.container)) {
+      const containerClasses = Array.from(this.slidesContainer.classList);
+      if (containerClasses.length > 0) {
+        // 첫 번째 클래스를 컨테이너 클래스로 사용
+        this.classNames.container = containerClasses[0];
+      }
+    }
+    
+    // 3. 슬라이드 클래스명 자동 감지 (커스텀이 없는 경우)
+    if (!customClassNames?.slide) {
+      // 기본 클래스명으로 슬라이드 검색 시도
+      let potentialSlides = this.slidesContainer.querySelectorAll(`.${this.classNames.slide}`);
+      
+      // 기본 클래스명으로 슬라이드를 찾지 못한 경우, 자동 감지
+      if (potentialSlides.length === 0) {
+        const allChildren = Array.from(this.slidesContainer.children) as HTMLElement[];
+        
+        if (allChildren.length > 0) {
+          // 첫 번째 자식 요소의 첫 번째 클래스를 슬라이드 클래스로 사용
+          const firstChildClasses = Array.from(allChildren[0].classList);
+          
+          if (firstChildClasses.length > 0) {
+            // 모든 자식이 동일한 클래스를 가지고 있는지 확인
+            const commonClass = firstChildClasses.find(className => {
+              return allChildren.every(child => child.classList.contains(className));
+            });
+            
+            if (commonClass) {
+              this.classNames.slide = commonClass;
+              console.info(`GsapSlideCarousel: Auto-detected slide class: "${commonClass}"`);
+            } else {
+              // 공통 클래스가 없으면 첫 번째 자식의 첫 번째 클래스 사용
+              this.classNames.slide = firstChildClasses[0];
+              console.warn(
+                `GsapSlideCarousel: No common slide class found. Using "${firstChildClasses[0]}" from first child.`
+              );
+            }
+          } else {
+            console.warn(
+              'GsapSlideCarousel: No classes found on slide elements. Using default class "gsap-carousel-slide".'
+            );
+          }
+        }
+      }
+    }
+    
+    console.info(
+      `GsapSlideCarousel: Using classes - container: "${this.classNames.container}", slide: "${this.classNames.slide}"`
+    );
+  }
 
   private init() {
     this.waitForImagesLoaded(this.slidesContainer, () => {
@@ -140,11 +212,33 @@ class GsapSlideCarousel implements IGsapSlideCarousel {
       return;
     }
 
+    this.applyRequiredStyles();
     this.calculateDimensions();
     this.setupSlidePositions();
     this.setupSlideClickEvents();
     this.startContinuousAutoSlide();
     this.reportExposure();
+  }
+
+  // 필수 CSS 스타일 적용
+  private applyRequiredStyles() {
+    // 컨테이너 필수 스타일
+    const containerStyle = this.slidesContainer.style;
+    if (!containerStyle.position || containerStyle.position === 'static') {
+      containerStyle.position = 'relative';
+    }
+    containerStyle.overflow = 'hidden';
+    
+    // 슬라이드 필수 스타일
+    this.slides.forEach(slide => {
+      const slideStyle = slide.style;
+      slideStyle.position = 'absolute';
+      slideStyle.top = '0';
+      slideStyle.left = '0';
+      slideStyle.willChange = 'transform';
+      slideStyle.userSelect = 'none';
+      slideStyle.webkitUserSelect = 'none'; // Safari 지원
+    });
   }
 
   // origin.ts 패턴: 각 슬라이드의 초기 위치 설정 및 stride 계산
@@ -221,7 +315,9 @@ class GsapSlideCarousel implements IGsapSlideCarousel {
       return;
     }
 
-    const duration = this.totalDistance / this.autoSlideSpeed;
+    // 한 슬라이드 전환 시간(ms)을 초 단위로 변환하여 전체 duration 계산
+    const durationPerSlide = this.transitionDuration / 1000;
+    const duration = durationPerSlide * this.totalSlides;
     const directionMultiplier = this.direction === 'left' ? -1 : 1;
     const movement = directionMultiplier * this.totalDistance;
 
@@ -471,13 +567,13 @@ class GsapSlideCarousel implements IGsapSlideCarousel {
    * // 단일 캐러셀
    * const carousel = GsapSlideCarousel.create({
    *   containerSelector: '#my-carousel',
-   *   autoSlideSpeed: 100
+   *   transitionDuration: 3000
    * });
    * 
    * // 여러 캐러셀 자동 초기화 (containerSelector로 여러 개 찾으면 모두 초기화)
    * const carousels = GsapSlideCarousel.create({
    *   containerSelector: '.gsap-carousel-container',
-   *   autoSlideSpeed: 100
+   *   transitionDuration: 3000
    * });
    * ```
    */
@@ -555,7 +651,7 @@ class GsapSlideCarousel implements IGsapSlideCarousel {
    * 
    * // 커스텀 옵션으로 초기화
    * const carousels = GsapSlideCarousel.initAll('.gsap-carousel-container', {
-   *   autoSlideSpeed: 100,
+   *   transitionDuration: 3000,
    *   pauseOnHover: true
    * });
    * ```
@@ -591,12 +687,12 @@ class GsapSlideCarousel implements IGsapSlideCarousel {
     }
   }
 
-  public setSpeed(speed: number): void {
-    if (speed <= 0) {
-      console.warn('Speed must be greater than 0');
+  public setSpeed(duration: number): void {
+    if (duration <= 0) {
+      console.warn('Duration must be greater than 0');
       return;
     }
-    this.autoSlideSpeed = speed;
+    this.transitionDuration = duration;
     if (this.animation && !this.isPausedState) {
       this.startContinuousAutoSlide();
     }
