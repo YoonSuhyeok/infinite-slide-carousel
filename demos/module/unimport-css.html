@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="../../dist/lib/infinite-slide-carousel.css" rel="stylesheet">
+    <link href="https://unpkg.com/infinite-slide-carousel@1.0.1/dist/lib/infinite-slide-carousel.css" rel="stylesheet">
     
     <!-- Import Map으로 bare import 해결 -->
     <script type="importmap">
@@ -14,49 +14,33 @@
     }
     </script>
     
-    <title>Basic Infinite Slide Carousel - ESM Module</title>
-    <style>
-        /* 슬라이드 크기와 스타일 커스터마이징 */
-        .gsap-carousel-container {
-            height: 200px;
-        }
-        .gsap-carousel-slide {
-            width: 200px;
-            height: 200px;
-            border-radius: 10px;
-            font-size: 24px;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-    </style>
+    <title>Not use css Infinite Slide Carousel - ESM Module</title>
 </head>
 <body style="background-color: #f5f5f5;">
     <div style="width: 80%; margin: auto; padding-top: 50px;">
         <h1 style="text-align: center; color: #333;">ESM Module Example</h1>
-        <div class="gsap-carousel-container">
-            <div class="gsap-carousel-slide" style="background-color: aliceblue; color: #333;">Slide 1</div>
-            <div class="gsap-carousel-slide" style="background-color: lightcoral;">Slide 2</div>
-            <div class="gsap-carousel-slide" style="background-color: lightseagreen;">Slide 3</div>
-            <div class="gsap-carousel-slide" style="background-color: lightblue; color: #333;">Slide 4</div>
-            <div class="gsap-carousel-slide" style="background-color: lightgoldenrodyellow; color: #333;">Slide 5</div>
+        <div class="container">
+            <div class="slide" style="background-color: aliceblue; color: #333;">Slide 1</div>
+            <div class="slide" style="background-color: lightcoral;">Slide 2</div>
+            <div class="slide" style="background-color: lightseagreen;">Slide 3</div>
+            <div class="slide" style="background-color: lightblue; color: #333;">Slide 4</div>
+            <div class="slide" style="background-color: lightgoldenrodyellow; color: #333;">Slide 5</div>
         </div>
         
         <div style="margin-top: 20px; text-align: center;">
             <button onclick="carousel.pause()" style="padding: 10px 20px; margin: 5px;">Pause</button>
             <button onclick="carousel.play()" style="padding: 10px 20px; margin: 5px;">Play</button>
-            <button onclick="carousel.setSpeed(4000)" style="padding: 10px 20px; margin: 5px;">Slow (4s)</button>
-            <button onclick="carousel.setSpeed(1000)" style="padding: 10px 20px; margin: 5px;">Fast (1s)</button>
+            <button onclick="carousel.setSpeed(50)" style="padding: 10px 20px; margin: 5px;">Slow</button>
+            <button onclick="carousel.setSpeed(150)" style="padding: 10px 20px; margin: 5px;">Fast</button>
         </div>
     </div>
     
     <script type="module">
-        // import GsapSlideCarousel from 'https://cdn.jsdelivr.net/npm/infinite-slide-carousel@latest/dist/lib/gsap-slide-carousel.es.js';
+        // import GsapSlideCarousel from 'https://cdn.jsdelivr.net/npm/infinite-slide-carousel@latest/dist/lib/gsap-slide-carousel.es.js';/
         import GsapSlideCarousel from '../../dist/lib/gsap-slide-carousel.es.js';
         
         const carousel = GsapSlideCarousel.create({
-            container: '.gsap-carousel-container',
+            container: '.container',
             multiple: false,
             direction: 'left',
             transitionDuration: 2000,

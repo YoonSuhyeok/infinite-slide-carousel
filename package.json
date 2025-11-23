@@ -1,7 +1,7 @@
 {
   "name": "infinite-slide-carousel",
   "description": "Infinite slider based on the GSAP library",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": false,
   "type": "module",
   "main": "./dist/lib/gsap-slide-carousel.umd.js",
@@ -32,7 +32,9 @@
     "dev": "vite",
     "build": "vite build --config vite.lib.config.ts && tsc --project tsconfig.lib.json",
     "lint": "tsc --noEmit",
-    "prepublishOnly": "pnpm build"
+    "perf:test": "node performance/scripts/performance-test.mjs",
+    "perf:compare": "node performance/scripts/performance-compare.mjs",
+    "perf:report": "node performance/scripts/performance-report.mjs"
   },
   "keywords": [
     "gsap",
@@ -45,6 +47,7 @@
   "author": "YoonSuhyeok",
   "license": "MIT",
   "devDependencies": {
+    "@playwright/test": "^1.56.1",
     "@types/node": "^24.10.1",
     "gsap": "^3.13.0",
     "typescript": "~5.8.3",

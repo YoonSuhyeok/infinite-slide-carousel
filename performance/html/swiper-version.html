@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <title>Swiper Version - Performance Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #1a1a1a;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #ff6b6b;
+            margin-bottom: 10px;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #2a2a2a;
+            border-radius: 10px;
+        }
+
+        .metric {
+            padding: 15px;
+            background: #333;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+
+        .metric-value.good {
+            color: #00ff88;
+        }
+
+        .metric-value.warning {
+            color: #ffaa00;
+        }
+
+        .metric-value.bad {
+            color: #ff4444;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #ff6b6b;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #ff5252;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .carousel-wrapper {
+            width: 100%;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .swiper {
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .swiper-wrapper {
+            transition-timing-function: linear !important;
+            position: relative;
+        }
+
+        .swiper-slide {
+            width: 300px !important;
+            height: 200px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .slide-content {
+            text-align: center;
+        }
+
+        .slide-number {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        #fps-chart {
+            width: 100%;
+            height: 200px;
+            background: #2a2a2a;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        .chart-canvas {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 Swiper Version - Performance Test</h1>
+        <p>Monitoring FPS, Memory, and Animation Performance</p>
+    </div>
+
+    <div class="metrics">
+        <div class="metric">
+            <div class="metric-label">FPS</div>
+            <div class="metric-value" id="fps">--</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Frame Time (ms)</div>
+            <div class="metric-value" id="frameTime">--</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Memory (MB)</div>
+            <div class="metric-value" id="memory">--</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">CPU Usage (%)</div>
+            <div class="metric-value" id="cpu">--</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Avg FPS</div>
+            <div class="metric-value" id="avgFps">--</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Min FPS</div>
+            <div class="metric-value" id="minFps">--</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button onclick="startTest()">Start Test</button>
+        <button onclick="stopTest()">Stop Test</button>
+        <button onclick="resetMetrics()">Reset Metrics</button>
+        <button onclick="addSlides(10)">Add 10 Slides</button>
+        <button onclick="increaseSpeed()">Speed Up (2x)</button>
+        <button onclick="decreaseSpeed()">Speed Down (0.5x)</button>
+        <button onclick="exportResults()">Export Results</button>
+    </div>
+
+    <div class="carousel-wrapper">
+        <div class="swiper">
+            <div class="swiper-wrapper">
+                <!-- 슬라이드가 여기에 추가됩니다 -->
+            </div>
+        </div>
+    </div>
+
+    <div id="fps-chart">
+        <canvas class="chart-canvas" id="chartCanvas"></canvas>
+    </div>
+
+    <script>
+        let swiper;
+        let performanceMonitor;
+        let testRunning = false;
+        let currentSpeed = 50; // pixels per second
+
+        // 성능 모니터링 클래스
+        class PerformanceMonitor {
+            constructor() {
+                this.frameCount = 0;
+                this.lastTime = performance.now();
+                this.fps = 0;
+                this.frameTime = 0;
+                this.fpsHistory = [];
+                this.maxHistoryLength = 100;
+                this.measuring = false;
+                
+                // 통계
+                this.avgFps = 0;
+                this.minFps = Infinity;
+                this.maxFps = 0;
+                this.totalFrames = 0;
+                
+                this.chart = new SimpleChart('chartCanvas');
+            }
+
+            start() {
+                this.measuring = true;
+                this.measure();
+            }
+
+            stop() {
+                this.measuring = false;
+            }
+
+            reset() {
+                this.fpsHistory = [];
+                this.avgFps = 0;
+                this.minFps = Infinity;
+                this.maxFps = 0;
+                this.totalFrames = 0;
+                this.frameCount = 0;
+            }
+
+            measure() {
+                if (!this.measuring) return;
+
+                const currentTime = performance.now();
+                this.frameCount++;
+
+                // FPS 계산 (매 초마다)
+                if (currentTime >= this.lastTime + 1000) {
+                    this.fps = Math.round(this.frameCount * 1000 / (currentTime - this.lastTime));
+                    this.frameTime = ((currentTime - this.lastTime) / this.frameCount).toFixed(2);
+                    
+                    // 통계 업데이트
+                    this.totalFrames++;
+                    this.minFps = Math.min(this.minFps, this.fps);
+                    this.maxFps = Math.max(this.maxFps, this.fps);
+                    this.avgFps = Math.round(
+                        (this.avgFps * (this.totalFrames - 1) + this.fps) / this.totalFrames
+                    );
+
+                    // 히스토리 업데이트
+                    this.fpsHistory.push(this.fps);
+                    if (this.fpsHistory.length > this.maxHistoryLength) {
+                        this.fpsHistory.shift();
+                    }
+
+                    this.updateUI();
+                    this.chart.update(this.fpsHistory);
+
+                    this.frameCount = 0;
+                    this.lastTime = currentTime;
+                }
+
+                requestAnimationFrame(() => this.measure());
+            }
+
+            updateUI() {
+                const fpsEl = document.getElementById('fps');
+                const frameTimeEl = document.getElementById('frameTime');
+                const avgFpsEl = document.getElementById('avgFps');
+                const minFpsEl = document.getElementById('minFps');
+                const memoryEl = document.getElementById('memory');
+                const cpuEl = document.getElementById('cpu');
+
+                // FPS 색상 설정
+                fpsEl.textContent = this.fps;
+                fpsEl.className = 'metric-value';
+                if (this.fps >= 55) fpsEl.classList.add('good');
+                else if (this.fps >= 30) fpsEl.classList.add('warning');
+                else fpsEl.classList.add('bad');
+
+                frameTimeEl.textContent = this.frameTime;
+                avgFpsEl.textContent = this.avgFps;
+                minFpsEl.textContent = this.minFps === Infinity ? '--' : this.minFps;
+
+                // 메모리 사용량 (Chrome only)
+                if (performance.memory) {
+                    const usedMB = (performance.memory.usedJSHeapSize / 1048576).toFixed(2);
+                    memoryEl.textContent = usedMB;
+                }
+
+                // CPU는 브라우저에서 직접 측정 불가, 프레임타임으로 추정
+                const estimatedCpu = Math.min(100, Math.round((this.frameTime / 16.67) * 100));
+                cpuEl.textContent = estimatedCpu;
+            }
+
+            getResults() {
+                return {
+                    library: 'Swiper',
+                    avgFps: this.avgFps,
+                    minFps: this.minFps,
+                    maxFps: this.maxFps,
+                    avgFrameTime: (1000 / this.avgFps).toFixed(2),
+                    memory: performance.memory ? (performance.memory.usedJSHeapSize / 1048576).toFixed(2) : 'N/A',
+                    slideCount: swiper ? swiper.slides.length : 0,
+                    timestamp: new Date().toISOString()
+                };
+            }
+        }
+
+        // 간단한 차트 클래스
+        class SimpleChart {
+            constructor(canvasId) {
+                this.canvas = document.getElementById(canvasId);
+                this.ctx = this.canvas.getContext('2d');
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+            }
+
+            resize() {
+                const rect = this.canvas.getBoundingClientRect();
+                this.canvas.width = rect.width;
+                this.canvas.height = rect.height;
+            }
+
+            update(data) {
+                const ctx = this.ctx;
+                const width = this.canvas.width;
+                const height = this.canvas.height;
+
+                // 클리어
+                ctx.clearRect(0, 0, width, height);
+
+                if (data.length === 0) return;
+
+                // 그리드
+                ctx.strokeStyle = '#444';
+                ctx.lineWidth = 1;
+                
+                // 60 FPS 라인
+                const y60 = height - (60 / 70) * height;
+                ctx.beginPath();
+                ctx.moveTo(0, y60);
+                ctx.lineTo(width, y60);
+                ctx.stroke();
+                
+                ctx.fillStyle = '#00ff88';
+                ctx.font = '10px Arial';
+                ctx.fillText('60 FPS', 5, y60 - 5);
+
+                // 30 FPS 라인
+                const y30 = height - (30 / 70) * height;
+                ctx.strokeStyle = '#ffaa00';
+                ctx.beginPath();
+                ctx.moveTo(0, y30);
+                ctx.lineTo(width, y30);
+                ctx.stroke();
+                
+                ctx.fillStyle = '#ffaa00';
+                ctx.fillText('30 FPS', 5, y30 - 5);
+
+                // 데이터 그리기
+                ctx.strokeStyle = '#ff6b6b';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+
+                const step = width / (data.length - 1);
+                data.forEach((fps, i) => {
+                    const x = i * step;
+                    const y = height - (Math.min(fps, 70) / 70) * height;
+                    
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                });
+
+                ctx.stroke();
+
+                // 점 그리기
+                ctx.fillStyle = '#ff6b6b';
+                data.forEach((fps, i) => {
+                    const x = i * step;
+                    const y = height - (Math.min(fps, 70) / 70) * height;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 2, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+            }
+        }
+
+        // 슬라이드 생성
+        function createSlides(count) {
+            const wrapper = document.querySelector('.swiper-wrapper');
+            const colors = [
+                'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+                'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+                'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
+                'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+                'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)'
+            ];
+
+            const startIndex = wrapper.children.length;
+            for (let i = 0; i < count; i++) {
+                const slide = document.createElement('div');
+                slide.className = 'swiper-slide';
+                slide.style.background = colors[(startIndex + i) % colors.length];
+                slide.innerHTML = `
+                    <div class="slide-content">
+                        <div class="slide-number">${startIndex + i + 1}</div>
+                        <div>Slide ${startIndex + i + 1}</div>
+                    </div>
+                `;
+                wrapper.appendChild(slide);
+            }
+        }
+
+        // 초기화
+        function init() {
+            // 초기 슬라이드 생성 (20개)
+            createSlides(20);
+
+            // Swiper 초기화 (진정한 무한 롤링)
+            swiper = new Swiper('.swiper', {
+                spaceBetween: 20,
+                centeredSlides: true,
+                speed: 2000,
+                autoplay: {
+                    delay: 1,
+                    disableOnInteraction: false,
+                },
+                loop: true,
+                slidesPerView: 'auto',
+                allowTouchMove: false,
+                loopAdditionalSlides: 10
+            });
+
+            // 성능 모니터 시작
+            performanceMonitor = new PerformanceMonitor();
+            performanceMonitor.start();
+            testRunning = true;
+
+            console.log('✅ Swiper initialized');
+        }
+
+        function startTest() {
+            if (!testRunning) {
+                performanceMonitor.start();
+                if (swiper) swiper.autoplay.start();
+                testRunning = true;
+                console.log('▶️ Test started');
+            }
+        }
+
+        function stopTest() {
+            if (testRunning) {
+                performanceMonitor.stop();
+                if (swiper) swiper.autoplay.stop();
+                testRunning = false;
+                console.log('⏸️ Test stopped');
+            }
+        }
+
+        function resetMetrics() {
+            performanceMonitor.reset();
+            console.log('🔄 Metrics reset');
+        }
+
+        function addSlides(count) {
+            createSlides(count);
+            
+            // Swiper 업데이트
+            if (swiper) {
+                swiper.update();
+                swiper.autoplay.start();
+            }
+            
+            const totalCount = document.querySelectorAll('.swiper-slide').length;
+            console.log(`➕ Added ${count} slides (total: ${totalCount})`);
+        }
+
+        function increaseSpeed() {
+            if (swiper && swiper.params) {
+                currentSpeed *= 2;
+                swiper.params.speed = Math.max(500, swiper.params.speed / 2);
+                swiper.params.autoplay.delay = 1;
+                swiper.autoplay.stop();
+                swiper.autoplay.start();
+                console.log(`⚡ Speed increased (duration: ${swiper.params.speed}ms)`);
+            }
+        }
+
+        function decreaseSpeed() {
+            if (swiper && swiper.params) {
+                currentSpeed *= 0.5;
+                swiper.params.speed = Math.min(10000, swiper.params.speed * 2);
+                swiper.params.autoplay.delay = 1;
+                swiper.autoplay.stop();
+                swiper.autoplay.start();
+                console.log(`🐌 Speed decreased (duration: ${swiper.params.speed}ms)`);
+            }
+        }
+
+        function exportResults() {
+            const results = performanceMonitor.getResults();
+            const json = JSON.stringify(results, null, 2);
+            
+            // 콘솔에 출력
+            console.log('📊 Performance Results:', results);
+            
+            // 파일로 다운로드
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `swiper-performance-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            console.log('💾 Results exported');
+        }
+
+        // 페이지 로드 시 초기화
+        window.addEventListener('load', init);
+
+        // 페이지 언로드 시 정리
+        window.addEventListener('beforeunload', () => {
+            if (swiper) swiper.destroy();
+            if (performanceMonitor) performanceMonitor.stop();
+        });
+    </script>
+</body>
+</html>
