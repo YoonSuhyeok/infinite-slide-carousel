@@ -64,7 +64,8 @@ class GsapSlideCarousel implements IGsapSlideCarousel {
   
   // 설정
   private direction: 'left' | 'right';
-  private autoSlideSpeed: number;
+  private autoSlideSpeed?: number;
+  private transitionDuration?: number;
   private slideSpace: number;
   private minSlideCount?: number;
   private enableDrag: boolean;
@@ -114,7 +115,8 @@ class GsapSlideCarousel implements IGsapSlideCarousel {
     
     // 옵션 설정
     this.direction = options.direction ?? 'left';
-    this.autoSlideSpeed = options.autoSlideSpeed ?? 30;
+    this.autoSlideSpeed = options.autoSlideSpeed;
+    this.transitionDuration = options.transitionDuration;
     this.slideSpace = options.slideSpace ?? 16;
     this.minSlideCount = options.minSlideCount;
     this.enableDrag = options.enableDrag ?? true;
@@ -264,7 +266,20 @@ class GsapSlideCarousel implements IGsapSlideCarousel {
       return;
     }
 
-    const duration = this.totalDistance / this.autoSlideSpeed;
+    // duration 계산: autoSlideSpeed 우선, 없으면 transitionDuration 사용, 둘 다 없으면 기본값
+    let duration: number;
+    if (this.autoSlideSpeed !== undefined) {
+      // autoSlideSpeed: 픽셀/초 단위로 전체 거리를 이동하는 시간 계산
+      duration = this.totalDistance / this.autoSlideSpeed;
+    } else if (this.transitionDuration !== undefined) {
+      // transitionDuration: 슬라이드 하나 전환 시간(ms)을 기준으로 전체 duration 계산
+      const durationPerSlide = this.transitionDuration / 1000;
+      duration = durationPerSlide * this.totalSlides;
+    } else {
+      // 기본값: autoSlideSpeed 30
+      duration = this.totalDistance / 30;
+    }
+    
     const directionMultiplier = this.direction === 'left' ? -1 : 1;
     const movement = directionMultiplier * this.totalDistance;
 
@@ -645,13 +660,14 @@ class GsapSlideCarousel implements IGsapSlideCarousel {
     }
   }
 
-  public setSpeed(speed: number): void {
-    if (speed <= 0) {
-      console.warn('Speed must be greater than 0');
+  public setSpeed(duration: number): void {
+    if (duration <= 0) {
+      console.warn('Duration must be greater than 0');
       return;
     }
-    debug.log(`setSpeed() called: ${speed}`);
-    this.autoSlideSpeed = speed;
+    debug.log(`setSpeed() called: ${duration}ms per slide`);
+    this.transitionDuration = duration;
+    this.autoSlideSpeed = undefined;  // transitionDuration 우선 적용
     if (this.animation && !this.isPausedState) {
       debug.log('Restarting animation with new speed');
       this.startContinuousAutoSlide();

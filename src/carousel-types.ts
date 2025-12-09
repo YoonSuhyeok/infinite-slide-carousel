@@ -56,6 +56,11 @@ export interface CarouselOptions {
   /** 슬라이드 자동 이동 속도 (픽셀/초, 기본값: 30) */
   autoSlideSpeed?: number;
   
+  /** 한 슬라이드 전환 시간 (밀리초, 기본값: 3000)
+   * autoSlideSpeed와 함께 사용 시 autoSlideSpeed가 우선합니다.
+   */
+  transitionDuration?: number;
+  
   /** 슬라이드 간 간격 (픽셀, 기본값: 16) */
   slideSpace?: number;
   
