@@ -1,7 +1,7 @@
 {
   "name": "infinite-slide-carousel",
   "description": "Infinite slider based on the GSAP library",
-  "version": "1.0.3",
+  "version": "1.1.1",
   "private": false,
   "type": "module",
   "main": "./dist/lib/gsap-slide-carousel.umd.js",
@@ -22,12 +22,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/YoonSuhyeok/gsap-slide.git"
+    "url": "https://github.com/YoonSuhyeok/infinite-slide-carousel.git"
   },
   "bugs": {
-    "url": "https://github.com/YoonSuhyeok/gsap-slide/issues"
+    "url": "https://github.com/YoonSuhyeok/infinite-slide-carousel/issues"
   },
-  "homepage": "https://github.com/YoonSuhyeok/gsap-slide#readme",
+  "homepage": "https://github.com/YoonSuhyeok/infinite-slide-carousel#readme",
   "scripts": {
     "dev": "vite",
     "build": "vite build --config vite.lib.config.ts && tsc --project tsconfig.lib.json",

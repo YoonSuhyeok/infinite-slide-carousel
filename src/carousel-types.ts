@@ -53,11 +53,17 @@ export interface CarouselOptions {
   /** 슬라이드 방향 (기본값: 'left') */
   direction?: 'left' | 'right';
   
-  /** 한 슬라이드 전환 시간 (밀리초, 기본값: 3000) */
-  transitionDuration?: number;
+  /** 슬라이드 자동 이동 속도 (픽셀/초, 기본값: 30) */
+  autoSlideSpeed?: number;
   
   /** 슬라이드 간 간격 (픽셀, 기본값: 16) */
   slideSpace?: number;
+  
+  /** 슬라이드 자동 복제 및 애니메이션 비활성화 기준 개수 (기본값: 자동 계산)
+   * 슬라이드 수가 이 값 이하일 때 복제하지 않고 애니메이션도 멈춥니다.
+   * 설정하지 않으면 화면을 채우기 위해 필요한 만큼 자동으로 복제합니다.
+   */
+  minSlideCount?: number;
   
   /** 드래그 기능 활성화 여부 (기본값: true) */
   enableDrag?: boolean;
