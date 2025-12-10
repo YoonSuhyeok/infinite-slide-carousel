@@ -65,10 +65,17 @@ export interface CarouselOptions {
   slideSpace?: number;
   
   /** 슬라이드 자동 복제 및 애니메이션 비활성화 기준 개수 (기본값: 자동 계산)
-   * 슬라이드 수가 이 값 이하일 때 복제하지 않고 애니메이션도 멈춥니다.
+   * 슬라이드 수가 이 값 이하일 때 복제하지 않고 애니메이션도 멈춤니다.
    * 설정하지 않으면 화면을 채우기 위해 필요한 만큼 자동으로 복제합니다.
    */
   minSlideCount?: number;
+  
+  /** 컨테이너 너비 기준 회전 여부 (기본값: false)
+   * true로 설정하면 슬라이드가 컨테이너를 다 채우지 못해도
+   * 컨테이너 너비를 기준으로 회전합니다.
+   * minSlideCount와 함께 사용 시 유용합니다.
+   */
+  fillContainerWidth?: boolean;
   
   /** 드래그 기능 활성화 여부 (기본값: true) */
   enableDrag?: boolean;

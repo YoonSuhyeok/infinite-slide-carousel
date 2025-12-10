@@ -68,6 +68,7 @@ class GsapSlideCarousel implements IGsapSlideCarousel {
   private transitionDuration?: number;
   private slideSpace: number;
   private minSlideCount?: number;
+  private fillContainerWidth: boolean;
   private enableDrag: boolean;
   private pauseOnHover: boolean;
   private pauseOnHidden: boolean;
@@ -119,6 +120,7 @@ class GsapSlideCarousel implements IGsapSlideCarousel {
     this.transitionDuration = options.transitionDuration;
     this.slideSpace = options.slideSpace ?? 16;
     this.minSlideCount = options.minSlideCount;
+    this.fillContainerWidth = options.fillContainerWidth ?? false;
     this.enableDrag = options.enableDrag ?? true;
     this.pauseOnHover = options.pauseOnHover ?? true;
     this.pauseOnHidden = options.pauseOnHidden ?? true;
@@ -182,9 +184,10 @@ class GsapSlideCarousel implements IGsapSlideCarousel {
     this.stride = slideWidth + this.slideSpace;
     
     // 슬라이드가 부족하면 복제
-    // minSlideCount가 0이면 복제하지 않음
     // minSlideCount가 undefined이면 자동 계산 (기존 동작)
-    // minSlideCount가 양수이면 해당 값 이하일 때 복제 안하고 애니메이션도 비활성화
+    // minSlideCount가 양수이면:
+    //   - 해당 값 이하일 때: 복제 안하고 애니메이션도 비활성화
+    //   - 해당 값 초과일 때: 화면을 채우기 위해 필요시 복제
     const autoMinSlides = Math.ceil(containerWidth / this.stride) + 2;
     
     // minSlideCount가 설정되어 있고, 슬라이드 수가 해당 값 이하인 경우 애니메이션 비활성화
@@ -195,13 +198,15 @@ class GsapSlideCarousel implements IGsapSlideCarousel {
       this.isAnimationDisabled = false;
     }
     
+    // 복제 조건:
+    // 1. minSlideCount가 undefined이면 기존처럼 자동 복제
+    // 2. minSlideCount가 설정되어 있고 슬라이드 수가 minSlideCount 초과이면 화면 채우기 위해 복제
     const shouldDuplicate = this.minSlideCount === undefined 
       ? this.totalSlides < autoMinSlides
-      : false;  // minSlideCount가 설정되면 복제하지 않음
+      : (this.totalSlides > this.minSlideCount && this.totalSlides < autoMinSlides);
     
     if (shouldDuplicate) {
-      const targetMinSlides = this.minSlideCount ?? autoMinSlides;
-      const neededCopies = Math.ceil(targetMinSlides / this.totalSlides) - 1;
+      const neededCopies = Math.ceil(autoMinSlides / this.totalSlides) - 1;
       const originalSlides = [...this.slides];
       
       for (let copy = 0; copy < neededCopies; copy++) {
@@ -215,7 +220,17 @@ class GsapSlideCarousel implements IGsapSlideCarousel {
       this.totalSlides = this.slides.length;
     }
     
-    this.totalDistance = this.stride * this.totalSlides;
+    // totalDistance 계산
+    const slidesTotalWidth = this.stride * this.totalSlides;
+    
+    // fillContainerWidth가 true이고 슬라이드 너비가 컨테이너보다 작으면 컨테이너 너비 사용
+    if (this.fillContainerWidth && slidesTotalWidth < containerWidth) {
+      this.totalDistance = containerWidth;
+      debug.log(`Using container width for rotation: ${containerWidth}px`);
+    } else {
+      this.totalDistance = slidesTotalWidth;
+    }
+    
     const maxHeight = Math.max(...this.slides.map(slide => slide.offsetHeight));
     this.slidesContainer.style.height = `${maxHeight}px`;
   }
