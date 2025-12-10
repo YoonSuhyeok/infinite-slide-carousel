@@ -69,6 +69,7 @@ class GsapSlideCarousel implements IGsapSlideCarousel {
   private slideSpace: number;
   private minSlideCount?: number;
   private fillContainerWidth: boolean;
+  private initialOffset: number;
   private enableDrag: boolean;
   private pauseOnHover: boolean;
   private pauseOnHidden: boolean;
@@ -121,6 +122,7 @@ class GsapSlideCarousel implements IGsapSlideCarousel {
     this.slideSpace = options.slideSpace ?? 16;
     this.minSlideCount = options.minSlideCount;
     this.fillContainerWidth = options.fillContainerWidth ?? false;
+    this.initialOffset = options.initialOffset ?? 0;
     this.enableDrag = options.enableDrag ?? true;
     this.pauseOnHover = options.pauseOnHover ?? true;
     this.pauseOnHidden = options.pauseOnHidden ?? true;
@@ -237,8 +239,10 @@ class GsapSlideCarousel implements IGsapSlideCarousel {
 
   // origin.ts 패턴: gsap.set으로 각 슬라이드의 초기 x 위치 설정
   private setupSlidePositions() {
-    // 오른쪽 방향일 때는 슬라이드를 왼쪽(음수)에서 시작하여 화면 왼쪽 여백 방지
-    const offset = this.direction === 'right' ? -this.totalDistance : 0;
+    // 기본 오프셋: 오른쪽 방향일 때는 슬라이드를 왼쪽(음수)에서 시작
+    const baseOffset = this.direction === 'right' ? -this.totalDistance : 0;
+    // 사용자 지정 초기 오프셋 추가
+    const offset = baseOffset + this.initialOffset;
     
     // 각 슬라이드를 개별 위치 설정
     gsap.set(this.slides, {

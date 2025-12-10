@@ -77,6 +77,12 @@ export interface CarouselOptions {
    */
   fillContainerWidth?: boolean;
   
+  /** 슬라이드 초기 위치 오프셋 (픽셀, 기본값: 0)
+   * 슬라이드의 초기 x 위치를 조정합니다.
+   * 양수: 오른쪽으로 이동, 음수: 왼쪽으로 이동
+   */
+  initialOffset?: number;
+  
   /** 드래그 기능 활성화 여부 (기본값: true) */
   enableDrag?: boolean;
   

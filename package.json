@@ -1,7 +1,7 @@
 {
   "name": "infinite-slide-carousel",
   "description": "Infinite slider based on the GSAP library",
-  "version": "1.2.1",
+  "version": "1.4.0",
   "private": false,
   "type": "module",
   "main": "./dist/lib/gsap-slide-carousel.umd.js",
